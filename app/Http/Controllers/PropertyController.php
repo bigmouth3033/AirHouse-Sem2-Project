@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MailAcceptProperty;
+use App\Mail\MailCreateProperty;
+use App\Mail\MailDenyProperty;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use App\Models\Amenity;
@@ -10,6 +13,8 @@ use Illuminate\Http\Request;
 use App\Models\PropertyImage;
 use App\Models\PropertyAmenity;
 use App\Models\PropertyExceptionDate;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
@@ -108,6 +113,7 @@ class PropertyController extends Controller
                 $newException->save();
             }
         }
+        Mail::to($user->email)->send(new MailCreateProperty($user,  $Property));
 
         return response()->json([
             'success' => true,
@@ -243,7 +249,8 @@ class PropertyController extends Controller
         $property->acception_status = 'accept';
         $property->admin_message = $request->message;
         $property->save();
-
+        $user  = User::where('id',$property->user_id)->first();
+        Mail::to($user->email)->send(new MailAcceptProperty($user,  $property));        
         return response([
             'message' => 'accept property'
         ]);
@@ -261,6 +268,9 @@ class PropertyController extends Controller
         $property->acception_status = 'deny';
         $property->admin_message = $request->message;
         $property->save();
+        $user  = User::where('id',$property->user_id)->first();
+        Mail::to($user->email)->send(new MailDenyProperty($user,  $property));
+
 
         return response([
             'message' => 'deny property'

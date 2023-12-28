@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MailAcceptReview;
+use App\Mail\MailDenyReview;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Booking;
@@ -91,11 +93,15 @@ class BookingController extends Controller
                 $property = Property::where('id', $request->property_id)->first();
                 if ($property->booking_type == 'instantly') {
                     $booking->booking_status = 'accepted';
+                    $booking->save();
+                    Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
+                    Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
+
                 } else {
                     $booking->booking_status = 'waiting';
+                    $booking->save();
+                    Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
                 }
-                $booking->save();
-                Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
                 return response($booking, 200);
             }
         } else {
@@ -183,32 +189,34 @@ class BookingController extends Controller
         $booking = Booking::where('id', $request->booking_id)->first();
         $booking->booking_status = 'denied';
         $booking->save();
+        $user = User::where('id',$booking->user_id)->first();
+        $property  = Property::find('id', $booking->property_id);
 
+        Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
         return response($booking);
     }
 
     public function acceptBooking(Request $request)
     {
         $booking = Booking::where('id', $request->booking_id)->first();
-
         $violateBooking = Booking::where('booking_status', 'waiting');
-
         $violateBooking = $violateBooking->where(function ($query) use ($request, $booking) {
             $query->whereDate('check_in_date', '>=', $booking->check_in_date)
                 ->whereDate('check_in_date', '<=', $booking->check_out_date)
                 ->orWhereDate('check_out_date', '>=', $booking->check_in_date)
                 ->whereDate('check_out_date', '<=', $booking->check_out_date);
         });
-
         $violateBooking = $violateBooking->get();
 
         foreach ($violateBooking as $booking) {
             $booking->booking_status = 'denied';
             $booking->save();
         }
-
         $booking->booking_status = 'accepted';
         $booking->save();
+        $user= User::where('id',$booking->user_id)->first();
+        $property = Property::find($booking->property_id);
+        Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
 
         return response($booking);
     }
