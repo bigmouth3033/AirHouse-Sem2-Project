@@ -592,13 +592,9 @@ const Calendar = () => {
             />
             <StyledSubmitButton
               onClick={onAddExceptionDate}
-              disabled={
-                !exceptionValue?.[1] ||
-                propertyMutation.isIdle ||
-                updateMutation.isIdle
-              }
+              disabled={!exceptionValue?.[1]}
             >
-              Submit {propertyMutation}
+              Submit
             </StyledSubmitButton>
             <StyledExceptionContainer>
               {exceptionValueArray.map((exceptionObj, index) => {

@@ -6,6 +6,7 @@ use App\Models\Rating;
 
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use Termwind\Components\Raw;
 
 class RatingController extends Controller
 {
@@ -77,7 +78,7 @@ class RatingController extends Controller
         $listRating = Rating::where('property_id', $property_id)->get();
         $total = 0;
         $count = 0;
-        
+
         foreach ($listRating as $rating) {
             $total = $rating->start + $total;
             $count++;
@@ -97,16 +98,54 @@ class RatingController extends Controller
         $perpage = 4 * $page;
         $count = Rating::with('user')->where('property_id', $request->property_id)->count();
         $ratings = Rating::with('user')->where('property_id', $request->property_id)->orderBy("updated_at", "desc")->paginate($perpage);
-        
+
         if ($ratings) {
             return response()->json([
                 "ratings" => $ratings,
                 "total" => $count
             ]);
-        }else {
+        } else {
             return response("error", 404);
         }
     }
-    // abc
-    // fhjrfghu
+    // create comments for host
+    public function createHostReview(Request $request)
+    {
+
+        $host_id = auth()->user()->id;
+        $booking =  Booking::where('id', $request->booking_id)->first();
+        if ($booking) {
+            $review = new Rating();
+            $review->renter_id = $booking->user_id;
+            $review->start = $request->start;
+            $review->host_id = $host_id;
+            $review->message = $request->message;
+            $review->save();
+            return response($review, 200);
+        } else {
+            return response("error", 404);
+        }
+    }
+    public function readHostReview(Request $request)
+    {
+        $host_id = auth()->user()->id;
+        $rating = Rating::where('renter_id', $request->renter_id)->where('host_id', $host_id)->first();
+        if ($rating) {
+            return response($rating, 200);
+        } else {
+            return response("error", 404);
+        }
+    }
+    public function allHostReviewUser()
+    {
+        $user_id = auth()->user()->id;
+        $ratings = Rating::where('renter_id', $user_id)
+            ->where('host_id', '!=', null)
+            ->get();
+        if ($ratings) {
+            return response($ratings, 200);
+        } else {
+            return response("error", 404);
+        }
+    }
 }

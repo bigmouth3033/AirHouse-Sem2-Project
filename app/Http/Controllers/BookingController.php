@@ -72,12 +72,7 @@ class BookingController extends Controller
                 $datesInRange[] = $date->toDateString();
             }
             if (array_intersect($listBookedDate, $datesInRange) || array_intersect($listException, $datesInRange)) {
-                // return response("error: maching date", 403);
-                return response()->json([
-                    "listBook" => $listBookedDate,
-                    "listException" => $listException,
-                    "date" => $datesInRange
-                ], 403);
+                return response("matched", 403);
             } else {
                 $booking = new Booking();
                 $booking->property_id = $request->property_id;
@@ -93,13 +88,14 @@ class BookingController extends Controller
                 $property = Property::where('id', $request->property_id)->first();
                 if ($property->booking_type == 'instantly') {
                     $booking->booking_status = 'accepted';
-                    Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
-                    Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
+                    $booking->save();
+                    // Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
+                    // Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
                 } else {
                     $booking->booking_status = 'waiting';
+                    $booking->save();
+                    // Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
                 }
-                $booking->save();
-                Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
                 return response($booking, 200);
             }
         } else {

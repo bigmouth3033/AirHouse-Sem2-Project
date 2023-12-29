@@ -32,7 +32,7 @@ class ExpireBooking extends Command
         if ($bookings) {
             foreach ($bookings as $book) {
                 $time  = $now->diffInHours($book->updated_at);
-                if ($time >= 24) {
+                if ($time >= 1) {
                     $book->booking_status = "expired";
                     $book->save();
                 }
