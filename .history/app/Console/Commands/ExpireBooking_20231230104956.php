@@ -40,9 +40,9 @@ class ExpireBooking extends Command
                 if ($time >= 24) {
                     $booking->booking_status = "expired";
                     $booking->save();
-                    $user = User::where('id', $booking->user_id)->first();
+                    $user = User::where('id', $booking->email)->first();
                     $property  = Property::where('id', $booking->property_id)->first();
-                    // Mail::to($user->email)->send(new MailExpireBooking($user, $booking, $property));
+                    Mail::to($user->email)->send(new MailExpireBooking($user, $booking, $property));
                 }
             }
         }
@@ -55,9 +55,9 @@ class ExpireBooking extends Command
                 if ($time >= 24) {
                     $booking->booking_status = "denied";
                     $booking->save();
-                    $user = User::where('id', $booking->user_id)->first();
+                    $user = User::where('id', $booking->email)->first();
                     $property  = Property::where('id', $booking->property_id)->first();
-                    // Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
+                    Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
                 }
             }
         }

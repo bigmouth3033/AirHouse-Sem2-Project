@@ -30,7 +30,7 @@ class UserController extends Controller
         $user->last_name  = $request->last_name;
         $user->save();
 
-        // Mail::to($user->email)->send(new EmailVerify($user));
+        Mail::to($user->email)->send(new EmailVerify($user));
 
         $token = $user->createToken('myToken')->plainTextToken;
         return response(compact('user', 'token'));

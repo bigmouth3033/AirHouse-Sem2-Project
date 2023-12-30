@@ -37,7 +37,7 @@ class ExpireBooking extends Command
         if ($bookingAccepted) {
             foreach ($bookingAccepted as $booking) {
                 $time  = $now->diffInHours($booking->updated_at);
-                if ($time >= 24) {
+                if ($time >= 1) {
                     $booking->booking_status = "expired";
                     $booking->save();
                     $user = User::where('id', $booking->user_id)->first();
@@ -52,7 +52,7 @@ class ExpireBooking extends Command
         if ($bookingWaiting) {
             foreach ($bookingWaiting as $booking) {
                 $time  = $now->diffInHours($booking->updated_at);
-                if ($time >= 24) {
+                if ($time >= 1/10) {
                     $booking->booking_status = "denied";
                     $booking->save();
                     $user = User::where('id', $booking->user_id)->first();

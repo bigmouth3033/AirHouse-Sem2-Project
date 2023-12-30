@@ -89,12 +89,12 @@ class BookingController extends Controller
                 if ($property->booking_type == 'instantly') {
                     $booking->booking_status = 'accepted';
                     $booking->save();
-                    // Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
-                    // Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
+                    Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
+                    Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
                 } else {
                     $booking->booking_status = 'waiting';
                     $booking->save();
-                    // Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
+                    Mail::to($user->email)->send(new MailCreateBooking($user, $booking, $property));
                 }
                 return response($booking, 200);
             }
@@ -186,7 +186,7 @@ class BookingController extends Controller
 
         $user = User::where('id',$booking->user_id)->first();
         $property  = Property::find('id', $booking->property_id);
-        // Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
+        Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
         return response($booking);
     }
 
@@ -210,7 +210,7 @@ class BookingController extends Controller
             $booking->save();
             $user= User::where('id',$booking->user_id)->first();
             $property = Property::find($booking->property_id);
-            // Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
+            Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
         }
 
         $booking->booking_status = 'accepted';
@@ -218,7 +218,7 @@ class BookingController extends Controller
 
         $user= User::where('id',$booking->user_id)->first();
         $property = Property::find($booking->property_id);
-        // Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
+        Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
 
         return response($booking);
     }
