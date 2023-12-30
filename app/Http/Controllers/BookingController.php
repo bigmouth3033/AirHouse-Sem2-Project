@@ -72,19 +72,19 @@ class BookingController extends Controller
                 $datesInRange[] = $date->toDateString();
             }
             if (array_intersect($listBookedDate, $datesInRange) || array_intersect($listException, $datesInRange)) {
-                // return response("error: maching date", 403);
-                return response()->json([
-                    "listBook" => $listBookedDate,
-                    "listException" => $listException,
-                    "date" => $datesInRange
-                ], 403);
+                return response("error: maching date", 403);
+                // return response()->json([
+                //     "listBook" => $listBookedDate,
+                //     "listException" => $listException,
+                //     "date" => $datesInRange
+                // ], 403);
             } else {
                 $booking = new Booking();
                 $booking->property_id = $request->property_id;
                 $booking->user_id = $request->user()->id;
                 $booking->check_in_date = $request->check_in_date;
                 $booking->check_out_date = $request->check_out_date;
-                $booking->price_per_day = $request->base_price;
+                $booking->price_per_day = $request->base_price; 
                 $booking->price_for_stay = $request->total;
                 $booking->site_fees = $request->site_fees;
                 $booking->booking_date = now()->toDateString();
@@ -188,7 +188,7 @@ class BookingController extends Controller
         $booking->booking_status = 'denied';
         $booking->save();
 
-        $user = User::where('id',$booking->user_id)->first();
+        $user = User::where('id', $booking->user_id)->first();
         $property  = Property::find('id', $booking->property_id);
         Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
         return response($booking);
@@ -212,7 +212,7 @@ class BookingController extends Controller
         foreach ($violateBooking as $booking) {
             $booking->booking_status = 'denied';
             $booking->save();
-            $user= User::where('id',$booking->user_id)->first();
+            $user = User::where('id', $booking->user_id)->first();
             $property = Property::find($booking->property_id);
             Mail::to($user->email)->send(new MailDenyReview($user, $booking, $property));
         }
@@ -220,7 +220,7 @@ class BookingController extends Controller
         $booking->booking_status = 'accepted';
         $booking->save();
 
-        $user= User::where('id',$booking->user_id)->first();
+        $user = User::where('id', $booking->user_id)->first();
         $property = Property::find($booking->property_id);
         Mail::to($user->email)->send(new MailAcceptReview($user, $booking, $property));
 
