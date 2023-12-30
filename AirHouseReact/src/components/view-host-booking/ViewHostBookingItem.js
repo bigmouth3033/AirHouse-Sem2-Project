@@ -12,6 +12,11 @@ import PopUpContainer from "ui/PopUpContainer";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import Avatar from "react-avatar";
+import { Rating } from "react-simple-star-rating";
+import { HostRatingMutation } from "api/startApi";
+import { HostReviewUserQuery } from "api/startApi";
+import { useQueryClient } from "@tanstack/react-query";
+import { UserQuery } from "api/userApi";
 
 const StyledContainer = styled.div`
   display: grid;
@@ -119,7 +124,7 @@ const StyledThird = styled.div`
   gap: 0.5rem;
   margin-top: 0.5rem;
 
-  & .avatar{
+  & .avatar {
     cursor: pointer;
   }
 
@@ -171,6 +176,7 @@ const StyledPopUp = styled(PopUpContainer)`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-items: center;
 
   h3 {
     font-size: 17px;
@@ -181,12 +187,23 @@ const StyledPopUp = styled(PopUpContainer)`
     resize: none;
     flex-grow: 1;
     padding: 1rem;
+    width: 100%;
+    border-radius: 25px;
 
     &:focus,
     &:hover {
       border: 1px solid red;
       outline: 1px solid red;
     }
+  }
+
+  & button {
+    background-color: red;
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: none;
   }
 `;
 
@@ -195,8 +212,21 @@ const StyledDisplayNone = styled.div`
 `;
 
 export default function ViewHostBookingItem({ data }) {
+  const userQuery = UserQuery();
+
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const rating = data.user.ratings?.find(
+    (item) => item.host_id == userQuery.data.user.id && item.property_id == null
+  );
+
   const [showMessage, setShowMessage] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+  const [ratingStar, setRatingStar] = useState(rating?.start);
+  const [ratingMessage, setRatingMessage] = useState(rating?.message);
+
+  const ratingMutation = HostRatingMutation();
 
   const onClickShowMessage = () => {
     setShowMessage(true);
@@ -220,6 +250,26 @@ export default function ViewHostBookingItem({ data }) {
     navigate({
       pathname: "/user/booking-detail",
       search: `?property_id=${data.property.id}`,
+    });
+  };
+
+  const onRating = () => {
+    if (!ratingStar || !ratingMessage) {
+      alert("Please fill in information");
+    }
+
+    const payload = {
+      user_id: data.user.id,
+      start: ratingStar,
+      message: ratingMessage,
+      booking_id: data.id,
+    };
+
+    ratingMutation.mutate(payload, {
+      onSuccess: () => {
+        alert("success");
+        setShowRating(false);
+      },
     });
   };
 
@@ -267,6 +317,9 @@ export default function ViewHostBookingItem({ data }) {
             data.booking_status == "success") && (
             <button>Payment Detail</button>
           )}
+          {data.booking_status == "success" && (
+            <button onClick={() => setShowRating(true)}>Rating</button>
+          )}
           <button
             onClick={() => {
               navigate("/user/chat/", {
@@ -287,6 +340,19 @@ export default function ViewHostBookingItem({ data }) {
         <StyledPopUp setShowPopUp={setShowMessage}>
           <h3>Admin</h3>
           <textarea value={data.admin_message}></textarea>
+        </StyledPopUp>
+      ) : (
+        <StyledDisplayNone></StyledDisplayNone>
+      )}
+      {showRating ? (
+        <StyledPopUp setShowPopUp={setShowRating}>
+          <h3>Admin</h3>
+          <Rating onClick={setRatingStar} initialValue={ratingStar} />
+          <textarea
+            value={ratingMessage}
+            onChange={(ev) => setRatingMessage(ev.target.value)}
+          ></textarea>
+          <button onClick={onRating}>submit</button>
         </StyledPopUp>
       ) : (
         <StyledDisplayNone></StyledDisplayNone>

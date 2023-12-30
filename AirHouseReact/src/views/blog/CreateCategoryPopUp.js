@@ -117,12 +117,12 @@ export default function CreateCategoryPopUp({ currentPage, setShowPopUp }) {
 
     createMutation.mutate(formData, {
       onSuccess: () => {
-        alert("sucess");
+        alert("create success");
         setCategoryName("");
-
+        setShowPopUp(false);
         setError(null);
         queryClient.invalidateQueries({
-          queryKey: ["category", "page", currentPage],
+          queryKey: ["CreateBlogCategory", "page", currentPage],
         });
       },
       onError: (err) => {
@@ -141,7 +141,7 @@ export default function CreateCategoryPopUp({ currentPage, setShowPopUp }) {
     <StyledPopUpContainer setShowPopUp={turnOffPopUp}>
       <StyledForm>
         <StyledInputField>
-          <label>Category Name helloooo</label>
+          <label>Category Name to create</label>
           <input
             onChange={(ev) => {
               setCategoryName(ev.target.value);
@@ -160,7 +160,11 @@ export default function CreateCategoryPopUp({ currentPage, setShowPopUp }) {
           </div>
         )}
         <StyledButtonRow>
-          <button disabled={categoryName == ""} onClick={onAddNewCategory} className="submit-button">
+          <button
+            disabled={categoryName == ""}
+            onClick={onAddNewCategory}
+            className="submit-button"
+          >
             Submit
           </button>
         </StyledButtonRow>
