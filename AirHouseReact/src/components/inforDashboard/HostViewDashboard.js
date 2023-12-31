@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { css } from "styled-components";
 import { useState } from "react";
 import Loading from "components/Loading";
+import { useNavigate } from "react-router-dom";
 
 const StyleCateBlock = styled.div`
   display: block;
@@ -186,6 +187,7 @@ const StyledIdentity = styled.div`
 `;
 
 export default function HostViewDashBoard() {
+  const navigate = useNavigate();
   const { data, isSuccess, isLoading } = GuestViewUserQuery();
   const rentingCount = data?.bookFromOthers;
   const bookingCount = data?.user?.bookings?.length || 0;
@@ -337,7 +339,16 @@ export default function HostViewDashBoard() {
                             .map((item, index) => {
                               return (
                                 <StyleCmt key={index}>
-                                  <p>{item.property.name}</p>
+                                  <p
+                                    onClick={() =>
+                                      navigate(
+                                        `/property?id=${item.property.id}`
+                                      )
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    {item.property.name}
+                                  </p>
                                   <div>
                                     {[...Array(5)].map((_, index) => (
                                       <FontAwesomeIcon
