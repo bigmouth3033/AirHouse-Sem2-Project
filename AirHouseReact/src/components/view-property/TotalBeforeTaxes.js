@@ -286,11 +286,7 @@ const TotalBeforeTaxes = ({
           navigate("/user/booking-list");
         }
       },
-      onError: (error) => {
-        alert(
-          "Booking fail because you click so many times. Advanced booking's already success"
-        );
-      },
+      onError: (error) => {},
     });
   };
 
