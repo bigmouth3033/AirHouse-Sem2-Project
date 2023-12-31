@@ -187,8 +187,8 @@ const StyledIdentity = styled.div`
 
 export default function HostViewDashBoard() {
   const { data, isSuccess, isLoading } = GuestViewUserQuery();
-  const bookingsCount = data?.bookFromOthers;
-  const tripsCount = data?.user?.bookings?.length || 0;
+  const rentingCount = data?.bookFromOthers;
+  const bookingCount = data?.user?.bookings?.length || 0;
   console.log(data);
   const [tab, setTab] = useState(1);
 
@@ -244,7 +244,7 @@ export default function HostViewDashBoard() {
                   style={{ color: "violet", fontSize: "2.5rem" }}
                 />
                 <p>
-                  <span>My Bookings</span> <span>{bookingsCount}</span>
+                  <span>My Bookings</span> <span>{bookingCount}</span>
                 </p>
               </div>
               <div>
@@ -253,7 +253,7 @@ export default function HostViewDashBoard() {
                   style={{ color: "lightgreen", fontSize: "2.9rem" }}
                 />
                 <p>
-                  <span>My Rentings</span> <span>{tripsCount}</span>
+                  <span>My Rentings</span> <span>{rentingCount}</span>
                 </p>
               </div>
             </StyledTopCard>
@@ -297,7 +297,7 @@ export default function HostViewDashBoard() {
                   </StyleTabButton>
                 </StyleTabTop>
                 <StyleTabBody>
-                {isSuccess && data ? (
+                  {isSuccess && data ? (
                     <>
                       {tab === 2 ? (
                         <>
@@ -331,28 +331,31 @@ export default function HostViewDashBoard() {
                         </>
                       ) : (
                         <>
-                          {data.user.ratings.filter(item => item.host_id == null).slice(0, 4).map((item, index) => {
-                            return (
-                              <StyleCmt key={index}>
-                                <p>{item.property.name}</p>
-                                <div>
-                                  {[...Array(5)].map((_, index) => (
-                                    <FontAwesomeIcon
-                                      key={index}
-                                      icon={faStar}
-                                      style={{
-                                        color:
-                                          index < item.start
-                                            ? "#ffcc00"
-                                            : "#c0c0c0",
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                                <div>{item.message}</div>
-                              </StyleCmt>
-                            );
-                          })}
+                          {data.user.ratings
+                            .filter((item) => item.host_id == null)
+                            .slice(0, 4)
+                            .map((item, index) => {
+                              return (
+                                <StyleCmt key={index}>
+                                  <p>{item.property.name}</p>
+                                  <div>
+                                    {[...Array(5)].map((_, index) => (
+                                      <FontAwesomeIcon
+                                        key={index}
+                                        icon={faStar}
+                                        style={{
+                                          color:
+                                            index < item.start
+                                              ? "#ffcc00"
+                                              : "#c0c0c0",
+                                        }}
+                                      />
+                                    ))}
+                                  </div>
+                                  <div>{item.message}</div>
+                                </StyleCmt>
+                              );
+                            })}
                         </>
                       )}
                     </>
