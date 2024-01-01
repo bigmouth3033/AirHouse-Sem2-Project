@@ -139,14 +139,24 @@ class DatabaseSeeder extends Seeder
         ///////////////////////////////////////////////////////////////////////////
 
 
-        for ($i = 0; $i < 300000; $i++) {
-            // SELECT * FROM `transactions` WHERE `payment_id` LIKE 'PM%'
-            Transaction::factory()->state([
-                'payment_id' => "PM$i"
-            ])->count(1)->create();
-        }
+        // for ($i = 0; $i < 300000; $i++) {
+        //     // SELECT * FROM `transactions` WHERE `payment_id` LIKE 'PM%'
+        //     Transaction::factory()->state([
+        //         'payment_id' => "PM$i"
+        //     ])->count(1)->create();
+        // }
 
 
         // Booking::factory()->count(100000)->create();
+
+        $users = User::pluck('id');        
+        foreach ($users as $item) {
+            $password_before_encrypt = '123456789@';
+            $password = bcrypt($password_before_encrypt);
+
+            $created_at = fake()->dateTimeBetween('2021-01-01', '2022-01-01');
+            $updated_at = $created_at;
+            User::where('id',$item)->update(['password' => $password,'created_at' => $created_at,'updated_at'=> $updated_at]);
+        }
     }
 }

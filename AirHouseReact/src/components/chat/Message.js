@@ -75,7 +75,7 @@ export default function Message(props) {
       });
 
     //Pusher
-    var pusher = new Pusher("014b8eb7bfaf79153ac0", {
+    var pusher = new Pusher("8ee7bb30b90361b0bbbd", {
       cluster: "ap1",
     });
 
